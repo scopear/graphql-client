@@ -2,6 +2,7 @@ using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using UniRx;
 
 namespace GraphQL.Client.Abstractions
 {
@@ -18,7 +19,7 @@ namespace GraphQL.Client.Abstractions
         /// </summary>
         /// <param name="request">the GraphQL request for this subscription</param>
         /// <returns>an observable stream for the specified subscription</returns>
-        IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request);
+        UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request);
 
         /// <summary>
         /// Creates a subscription to a GraphQL server. The connection is not established until the first actual subscription is made.<br/>
@@ -30,6 +31,6 @@ namespace GraphQL.Client.Abstractions
         /// <param name="request">the GraphQL request for this subscription</param>
         /// <param name="exceptionHandler">an external handler for all <see cref="Exception"/>s occurring within the sequence</param>
         /// <returns>an observable stream for the specified subscription</returns>
-        IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler);
+        UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler);
     }
 }

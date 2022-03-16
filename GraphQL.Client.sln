@@ -69,6 +69,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Example", "e
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{98D4DDDD-DE15-4997-B888-9BC806C7416C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniRxLibrary", "lib\UniRx\UniRxLibrary\UniRxLibrary.csproj", "{ADCE95DC-697F-493C-819D-0DA66AD9B582}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +133,10 @@ Global
 		{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADCE95DC-697F-493C-819D-0DA66AD9B582}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADCE95DC-697F-493C-819D-0DA66AD9B582}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADCE95DC-697F-493C-819D-0DA66AD9B582}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADCE95DC-697F-493C-819D-0DA66AD9B582}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
