@@ -8,14 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\UniRx\UniRxLibrary\UniRxLibrary.csproj" />
-    <ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />  
+    <ProjectReference Include="..\..\lib\UniRx\UniRxLibrary\UniRxLibrary.csproj" />
+    <ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="4.3.2" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Folder Include="Utilities" />
   </ItemGroup>

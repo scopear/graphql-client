@@ -69,7 +69,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Example", "e
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{98D4DDDD-DE15-4997-B888-9BC806C7416C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniRxLibrary", "..\UniRx\UniRxLibrary\UniRxLibrary.csproj", "{ADCE95DC-697F-493C-819D-0DA66AD9B582}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniRxLibrary", "lib\UniRx\UniRxLibrary\UniRxLibrary.csproj", "{ADCE95DC-697F-493C-819D-0DA66AD9B582}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

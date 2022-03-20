@@ -27,7 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
     <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\UniRx\UniRxLibrary\UniRxLibrary.csproj" />
+    <ProjectReference Include="..\..\lib\UniRx\UniRxLibrary\UniRxLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>
