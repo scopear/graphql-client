@@ -13,7 +13,7 @@ using UniRx;
 
 namespace GraphQL.Client.Http.Websocket
 {
-    public class UnityGraphQLHttpWebSocket : IDisposable
+    public class GraphQLHttpWebSocket : IDisposable
     {
 
         #region Private fields
@@ -69,7 +69,7 @@ namespace GraphQL.Client.Http.Websocket
 
         #endregion
 
-        public UnityGraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClient client)
+        public GraphQLHttpWebSocket(Uri webSocketUri, GraphQLHttpClient client)
         {
             _internalCancellationToken = _internalCancellationTokenSource.Token;
             _webSocketUri = webSocketUri;
@@ -379,13 +379,13 @@ namespace GraphQL.Client.Http.Websocket
 				switch (_clientWebSocket) {
 					case ClientWebSocket nativeWebSocket:
 						nativeWebSocket.Options.AddSubProtocol("graphql-ws");
-						nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+						// nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
 						nativeWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
                         Options.ConfigureWebsocketOptions(nativeWebSocket.Options);
                         break;
 					case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
 						managedWebSocket.Options.AddSubProtocol("graphql-ws");
-						managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+						// managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
 						managedWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
                         break;
 					default:
