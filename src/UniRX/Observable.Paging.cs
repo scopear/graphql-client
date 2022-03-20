@@ -74,13 +74,27 @@ namespace UniRx
             return x => !predicate(x);
         }
 
-        public static IObservable<TSource> TakeUntil<TSource>(
-            this IObservable<TSource> source,
-            Func<TSource, bool> stopPredicate)
-        {
-            if (source == null) throw new ArgumentNullException("source");
+        // public static IObservable<TSource> TakeUntil<TSource>(
+        //     this IObservable<TSource> source,
+        //     Func<TSource, bool> stopPredicate)
+        // {
+        //     if (source == null) throw new ArgumentNullException("source");
+        //
+        //     return new TakeWhileObservable<TSource>(source, Negate(stopPredicate));
+        // }
 
-            return new TakeWhileObservable<TSource>(source, Negate(stopPredicate));
+        public static IObservable<TSource> TakeUntil<TSource>(
+            this IObservable<TSource> source, Func<TSource, bool> predicate)
+        {
+            return Observable.Create<TSource>(o => source.Subscribe(x =>
+                    {
+                        o.OnNext(x);
+                        if (predicate(x))
+                            o.OnCompleted();
+                    },
+                    o.OnError,
+                    o.OnCompleted
+                ));
         }
 
         public static IObservable<T> TakeLast<T>(this IObservable<T> source, int count)

@@ -18,6 +18,9 @@ namespace GraphQL.Client.Http
         private readonly Lazy<GraphQLHttpWebSocket> _lazyHttpWebSocket;
         private GraphQLHttpWebSocket GraphQlHttpWebSocket => _lazyHttpWebSocket.Value;
 
+        private readonly Lazy<UnityGraphQLHttpWebSocket> _lazyUnityHttpWebSocket;
+        private UnityGraphQLHttpWebSocket UnityGraphQLHttpWebSocket => _lazyUnityHttpWebSocket.Value;
+
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         private readonly bool _disposeHttpClient = false;
@@ -40,12 +43,12 @@ namespace GraphQL.Client.Http
         /// <summary>
         /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
         /// </summary>
-        public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
+        public UniRx.IObservable<Exception> WebSocketReceiveErrors => UnityGraphQLHttpWebSocket.ReceiveErrors;
 
         /// <summary>
         /// the websocket connection state
         /// </summary>
-        public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => GraphQlHttpWebSocket.ConnectionState;
+        public UniRx.IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => UnityGraphQLHttpWebSocket.ConnectionState;
 
         #region Constructors
 
@@ -72,6 +75,19 @@ namespace GraphQL.Client.Http
                 HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(GetType().Assembly.GetName().Name, GetType().Assembly.GetName().Version.ToString()));
 
             _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
+            _lazyUnityHttpWebSocket = new Lazy<UnityGraphQLHttpWebSocket>(CreateUnityGraphQLHttpWebSocket);
+        }
+
+        private UnityGraphQLHttpWebSocket CreateUnityGraphQLHttpWebSocket()
+        {
+            if(Options.WebSocketEndPoint is null && Options.EndPoint is null)
+                throw new InvalidOperationException("no endpoint configured");
+
+            var webSocketEndpoint = Options.WebSocketEndPoint ?? Options.EndPoint.GetWebSocketUri();
+            if (!webSocketEndpoint.HasWebSocketScheme())
+                throw new InvalidOperationException($"uri \"{webSocketEndpoint}\" is not a websocket endpoint");
+
+            return new UnityGraphQLHttpWebSocket(webSocketEndpoint, this);
         }
 
         #endregion
@@ -95,16 +111,16 @@ namespace GraphQL.Client.Http
             => SendQueryAsync<TResponse>(request, cancellationToken);
 
         /// <inheritdoc />
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
+        public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
             => CreateSubscriptionStream<TResponse>(request, null);
 
         /// <inheritdoc />
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler)
+        public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler)
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(GraphQLHttpClient));
 
-            var observable = GraphQlHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
+            var observable = UnityGraphQLHttpWebSocket.CreateSubscriptionStream<TResponse>(request, exceptionHandler);
             return observable;
         }
 
@@ -114,7 +130,13 @@ namespace GraphQL.Client.Http
         /// explicitly opens the websocket connection. Will be closed again on disposing the last subscription
         /// </summary>
         /// <returns></returns>
-        public Task InitializeWebsocketConnection() => GraphQlHttpWebSocket.InitializeWebSocket();
+        public Task InitializeWebsocketConnection(bool useUnity = false)
+        {
+            if (useUnity)
+                return UnityGraphQLHttpWebSocket.InitializeWebSocket();
+            else
+                return GraphQlHttpWebSocket.InitializeWebSocket();
+        }
 
         #region Private Methods
 

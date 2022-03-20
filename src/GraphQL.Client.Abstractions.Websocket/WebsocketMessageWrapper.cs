@@ -1,4 +1,5 @@
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace GraphQL.Client.Abstractions.Websocket
 {
@@ -7,5 +8,9 @@ namespace GraphQL.Client.Abstractions.Websocket
 
         [IgnoreDataMember]
         public byte[] MessageBytes { get; set; }
+
+        [JsonConstructor]
+        public WebsocketMessageWrapper()
+        {}
     }
 }

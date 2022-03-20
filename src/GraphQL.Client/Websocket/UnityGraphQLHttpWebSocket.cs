@@ -13,7 +13,7 @@ using UniRx;
 
 namespace GraphQL.Client.Http.Websocket
 {
-    public class UnityGraphQLHttpWebSocket<TO> : IDisposable, IGraphQLHttpWebSocket
+    public class UnityGraphQLHttpWebSocket : IDisposable
     {
 
         #region Private fields
@@ -487,7 +487,7 @@ namespace GraphQL.Client.Http.Websocket
                     .Where(response => response != null)
                     .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK ||
                                              response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ERROR)
-                    .Last()
+                    .LastOrDefault()
                     .ToTask();
 
                 // send connection init

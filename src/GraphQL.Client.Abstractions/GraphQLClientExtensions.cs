@@ -38,14 +38,14 @@ namespace GraphQL.Client.Abstractions
             return client.SendMutationAsync<TResponse>(request, cancellationToken);
         }
 
-        public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
+        public static UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
             this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType)
         {
             _ = defineResponseType;
             return client.CreateSubscriptionStream<TResponse>(request);
         }
 
-        public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
+        public static UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
             this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType, Action<Exception> exceptionHandler)
         {
             _ = defineResponseType;

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />
+    <ProjectReference Include="..\UniRX\UniRX.csproj" />
   </ItemGroup>
 
   <ItemGroup>
