@@ -30,8 +30,4 @@
     <ProjectReference Include="..\..\lib\UniRx\UniRxLibrary\UniRxLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="System.Reactive.Linq" />
-  </ItemGroup>
-
 </Project>
