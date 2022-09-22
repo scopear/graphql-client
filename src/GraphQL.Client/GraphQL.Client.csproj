@@ -3,16 +3,12 @@
   <Import Project="../src.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <RootNamespace>GraphQL.Client.Http</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>NETSTANDARD</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
-    <DefineConstants>NETFRAMEWORK</DefineConstants>
+    <DefineConstants>NETSTANDARD;UniRxLibrary</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
