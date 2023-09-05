@@ -17,7 +17,7 @@ namespace GraphQL.Client.Http
         /// <param name="request">the GraphQL request for this subscription</param>
         /// <param name="webSocketExceptionHandler">an external handler for all <see cref="WebSocketException"/>s occurring within the sequence</param>
         /// <returns>an observable stream for the specified subscription</returns>
-        public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(this IGraphQLClient client,
+        public static UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(this IGraphQLClient client,
             GraphQLRequest request, Action<WebSocketException> webSocketExceptionHandler) =>
             client.CreateSubscriptionStream<TResponse>(request, e =>
             {
@@ -28,7 +28,7 @@ namespace GraphQL.Client.Http
             });
 
         /// <inheritdoc cref="CreateSubscriptionStream{TResponse}(IGraphQLClient,GraphQLRequest,Action{WebSocketException})"/>
-        public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
+        public static UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
             this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType, Action<WebSocketException> webSocketExceptionHandler)
         {
             _ = defineResponseType;
@@ -36,7 +36,7 @@ namespace GraphQL.Client.Http
         }
 
         /// <inheritdoc cref="GraphQLHttpClient.CreateSubscriptionStream{TResponse}(GraphQLRequest)"/>
-        public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
+        public static UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
             this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType)
         {
             _ = defineResponseType;

@@ -62,13 +62,13 @@ namespace GraphQL.Client.LocalExecution
         public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
             => ExecuteQueryAsync<TResponse>(request, cancellationToken);
 
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request) =>
-            Observable.Defer(() => ExecuteSubscriptionAsync<TResponse>(request).ToObservable())
+        public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request) =>
+            UniRx.Observable.Defer(() => ExecuteSubscriptionAsync<TResponse>(request).ToObservable())
                 .Concat()
                 .Publish()
                 .RefCount();
 
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request,
+        public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request,
             Action<Exception> exceptionHandler)
             => CreateSubscriptionStream<TResponse>(request);
 

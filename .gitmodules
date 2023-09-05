@@ -1,0 +1,3 @@
+[submodule "lib/UniRx"]
+	path = lib/UniRx
+	url = https://github.com/scopear/UniRx.git

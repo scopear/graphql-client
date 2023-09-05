@@ -3,15 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Net.WebSockets;
-using System.Reactive;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
+using UniRx;
 
 namespace GraphQL.Client.Http.Websocket
 {
@@ -57,17 +53,17 @@ namespace GraphQL.Client.Http.Websocket
         /// <summary>
         /// Publishes all errors which occur within the receive pipeline
         /// </summary>
-        public IObservable<Exception> ReceiveErrors => _exceptionSubject.AsObservable();
+        public UniRx.IObservable<Exception> ReceiveErrors => _exceptionSubject.AsObservable();
 
         /// <summary>
         /// Publishes the connection state of the <see cref="GraphQLHttpWebSocket"/>
         /// </summary>
-        public IObservable<GraphQLWebsocketConnectionState> ConnectionState => _stateSubject.DistinctUntilChanged();
+        public UniRx.IObservable<GraphQLWebsocketConnectionState> ConnectionState => _stateSubject.DistinctUntilChanged();
 
         /// <summary>
         /// Publishes all messages which are received on the websocket
         /// </summary>
-        public IObservable<WebsocketMessageWrapper> IncomingMessageStream { get; }
+        public UniRx.IObservable<WebsocketMessageWrapper> IncomingMessageStream { get; }
 
         #endregion
 
@@ -80,7 +76,7 @@ namespace GraphQL.Client.Http.Websocket
             IncomingMessageStream = GetMessageStream();
 
             _requestSubscription = _requestSubject
-                .Select(request => Observable.FromAsync(() => SendWebSocketRequestAsync(request)))
+                .Select(request => Observable.Create<Unit>((a) => SendWebSocketRequestAsync(request)))
                 .Concat()
                 .Subscribe();
         }
@@ -93,8 +89,8 @@ namespace GraphQL.Client.Http.Websocket
         /// <typeparam name="TResponse">the response type</typeparam>
         /// <param name="request">the <see cref="GraphQLRequest"/> to start the subscription</param>
         /// <param name="exceptionHandler">Optional: exception handler for handling exceptions within the receive pipeline</param>
-        /// <returns>a <see cref="IObservable{TResponse}"/> which represents the subscription</returns>
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler = null) =>
+        /// <returns>a <see cref="UniRx.IObservable{TResponse}"/> which represents the subscription</returns>
+        public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler = null) =>
             Observable.Defer(() =>
                     Observable.Create<GraphQLResponse<TResponse>>(async observer =>
                     {
@@ -202,9 +198,9 @@ namespace GraphQL.Client.Http.Websocket
                 .Catch<GraphQLResponse<TResponse>, OperationCanceledException>(exception =>
                     Observable.Empty<GraphQLResponse<TResponse>>())
                 // wrap results
-                .Select(response => new Tuple<GraphQLResponse<TResponse>, Exception>(response, null))
+                .Select(response => new UniRx.Tuple<GraphQLResponse<TResponse>, Exception>(response, null))
                 // do exception handling
-                .Catch<Tuple<GraphQLResponse<TResponse>, Exception>, Exception>(e =>
+                .Catch<UniRx.Tuple<GraphQLResponse<TResponse>, Exception>, Exception>(e =>
                 {
                     try
                     {
@@ -223,17 +219,17 @@ namespace GraphQL.Client.Http.Websocket
 
                         // throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
                         if (_internalCancellationToken.IsCancellationRequested)
-                            return Observable.Empty<Tuple<GraphQLResponse<TResponse>, Exception>>();
+                            return Observable.Empty<UniRx.Tuple<GraphQLResponse<TResponse>, Exception>>();
                         else
                         {
                             Debug.WriteLine($"Catch handler thread id: {Thread.CurrentThread.ManagedThreadId}");
-                            return Observable.Throw<Tuple<GraphQLResponse<TResponse>, Exception>>(e);
+                            return Observable.Throw<UniRx.Tuple<GraphQLResponse<TResponse>, Exception>>(e);
                         }
                     }
                     catch (Exception exception)
                     {
                         // wrap all other exceptions to be propagated behind retry
-                        return Observable.Return(new Tuple<GraphQLResponse<TResponse>, Exception>(null, exception));
+                        return Observable.Return(new UniRx.Tuple<GraphQLResponse<TResponse>, Exception>(null, exception));
                     }
                 })
                 // attempt to recreate the websocket for rethrown exceptions
@@ -315,7 +311,7 @@ namespace GraphQL.Client.Http.Websocket
                 // complete sequence on OperationCanceledException, this is triggered by the cancellation token
                 .Catch<GraphQLResponse<TResponse>, OperationCanceledException>(exception =>
                     Observable.Empty<GraphQLResponse<TResponse>>())
-                .FirstAsync()
+                .First()
                 .ToTask(cancellationToken);
 
         private Task QueueWebSocketRequest(GraphQLWebSocketRequest request)
@@ -385,13 +381,13 @@ namespace GraphQL.Client.Http.Websocket
 				switch (_clientWebSocket) {
 					case ClientWebSocket nativeWebSocket:
 						nativeWebSocket.Options.AddSubProtocol("graphql-ws");
-						nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+						// nativeWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
 						nativeWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
                         Options.ConfigureWebsocketOptions(nativeWebSocket.Options);
                         break;
 					case System.Net.WebSockets.Managed.ClientWebSocket managedWebSocket:
 						managedWebSocket.Options.AddSubProtocol("graphql-ws");
-						managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
+						// managedWebSocket.Options.ClientCertificates = ((HttpClientHandler)Options.HttpMessageHandler).ClientCertificates;
 						managedWebSocket.Options.UseDefaultCredentials = ((HttpClientHandler)Options.HttpMessageHandler).UseDefaultCredentials;
                         break;
 					default:
@@ -489,7 +485,7 @@ namespace GraphQL.Client.Http.Websocket
                     .Where(response => response != null)
                     .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK ||
                                            response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ERROR)
-                    .LastAsync()
+                    .LastOrDefault()
                     .ToTask();
 
                 // send connection init
@@ -531,7 +527,7 @@ namespace GraphQL.Client.Http.Websocket
             return Task.Delay(delay, _internalCancellationToken);
         }
 
-        private IObservable<WebsocketMessageWrapper> GetMessageStream() =>
+        private UniRx.IObservable<WebsocketMessageWrapper> GetMessageStream() =>
             Observable.Create<WebsocketMessageWrapper>(async observer =>
                 {
                     // make sure the websocket is connected

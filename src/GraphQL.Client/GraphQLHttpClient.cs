@@ -39,12 +39,12 @@ namespace GraphQL.Client.Http
         /// <summary>
         /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
         /// </summary>
-        public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
+        public UniRx.IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
 
         /// <summary>
         /// the websocket connection state
         /// </summary>
-        public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => GraphQlHttpWebSocket.ConnectionState;
+        public UniRx.IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => GraphQlHttpWebSocket.ConnectionState;
 
         #region Constructors
 
@@ -94,11 +94,11 @@ namespace GraphQL.Client.Http
             => SendQueryAsync<TResponse>(request, cancellationToken);
 
         /// <inheritdoc />
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
+        public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
             => CreateSubscriptionStream<TResponse>(request, null);
 
         /// <inheritdoc />
-        public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler)
+        public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler)
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(GraphQLHttpClient));
