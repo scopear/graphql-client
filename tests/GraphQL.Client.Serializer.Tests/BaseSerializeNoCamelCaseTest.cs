@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using FluentAssertions;
 using GraphQL.Client.Abstractions;
@@ -9,62 +8,63 @@ using GraphQL.Client.Tests.Common;
 using GraphQL.Client.Tests.Common.Helpers;
 using Xunit;
 
-namespace GraphQL.Client.Serializer.Tests
+namespace GraphQL.Client.Serializer.Tests;
+
+public abstract class BaseSerializeNoCamelCaseTest
 {
-    public abstract class BaseSerializeNoCamelCaseTest
+    public IGraphQLWebsocketJsonSerializer ClientSerializer { get; }
+
+    public IGraphQLTextSerializer ServerSerializer { get; }
+
+    public IGraphQLClient ChatClient { get; }
+
+    public IGraphQLClient StarWarsClient { get; }
+
+    protected BaseSerializeNoCamelCaseTest(IGraphQLWebsocketJsonSerializer clientSerializer, IGraphQLTextSerializer serverSerializer)
     {
-        public IGraphQLWebsocketJsonSerializer Serializer { get; }
+        ClientSerializer = clientSerializer;
+        ServerSerializer = serverSerializer;
+        ChatClient = GraphQLLocalExecutionClient.New(Common.GetChatSchema(), clientSerializer, serverSerializer);
+        StarWarsClient = GraphQLLocalExecutionClient.New(Common.GetStarWarsSchema(), clientSerializer, serverSerializer);
+    }
 
-        public IGraphQLClient ChatClient { get; }
+    [Theory]
+    [ClassData(typeof(SerializeToStringTestData))]
+    public void SerializeToStringTest(string expectedJson, GraphQLRequest request)
+    {
+        var json = ClientSerializer.SerializeToString(request).RemoveWhitespace();
+        json.Should().Be(expectedJson.RemoveWhitespace());
+    }
 
-        public IGraphQLClient StarWarsClient { get; }
+    [Theory]
+    [ClassData(typeof(SerializeToBytesTestData))]
+    public void SerializeToBytesTest(string expectedJson, GraphQLWebSocketRequest request)
+    {
+        var json = Encoding.UTF8.GetString(ClientSerializer.SerializeToBytes(request)).RemoveWhitespace();
+        json.Should().Be(expectedJson.RemoveWhitespace());
+    }
 
-        protected BaseSerializeNoCamelCaseTest(IGraphQLWebsocketJsonSerializer serializer)
-        {
-            Serializer = serializer;
-            ChatClient = GraphQLLocalExecutionClient.New(Common.GetChatSchema(), serializer);
-            StarWarsClient = GraphQLLocalExecutionClient.New(Common.GetStarWarsSchema(), serializer);
-        }
-
-        [Theory]
-        [ClassData(typeof(SerializeToStringTestData))]
-        public void SerializeToStringTest(string expectedJson, GraphQLRequest request)
-        {
-            var json = Serializer.SerializeToString(request).RemoveWhitespace();
-            json.Should().Be(expectedJson.RemoveWhitespace());
-        }
-
-        [Theory]
-        [ClassData(typeof(SerializeToBytesTestData))]
-        public void SerializeToBytesTest(string expectedJson, GraphQLWebSocketRequest request)
-        {
-            var json = Encoding.UTF8.GetString(Serializer.SerializeToBytes(request)).RemoveWhitespace();
-            json.Should().Be(expectedJson.RemoveWhitespace());
-        }
-
-        [Fact]
-        public async void WorksWithoutCamelCaseNamingStrategy()
-        {
-
-            const string message = "some random testing message";
-            var graphQLRequest = new GraphQLRequest(
-                @"mutation($input: MessageInputType){
+    [Fact]
+    public async void WorksWithoutCamelCaseNamingStrategy()
+    {
+        const string message = "some random testing message";
+        var graphQLRequest = new GraphQLRequest(
+            @"mutation($input: MessageInputType){
 				  addMessage(message: $input){
 				    content
 				  }
 				}",
-                new
+            new
+            {
+                input = new
                 {
-                    input = new
-                    {
-                        fromId = "2",
-                        content = message,
-                        sentAt = DateTime.Now
-                    }
-                });
-            var response = await ChatClient.SendMutationAsync(graphQLRequest, () => new { addMessage = new { content = "" } });
+                    fromId = "2",
+                    content = message,
+                    sentAt = DateTime.Now
+                }
+            });
+        var response = await ChatClient.SendMutationAsync(graphQLRequest, () => new { addMessage = new { content = "" } });
 
-            Assert.Equal(message, response.Data.addMessage.content);
-        }
+        Assert.Equal(message, response.Data.addMessage.content);
     }
 }

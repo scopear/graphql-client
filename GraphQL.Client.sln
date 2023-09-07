@@ -1,29 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28407.52
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{47C98B55-08F1-4428-863E-2C5C876DEEFE}"
-	ProjectSection(SolutionItems) = preProject
-		src\.editorconfig = src\.editorconfig
-		src\src.props = src\src.props
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{63F75859-4698-4EDE-8B70-4ACBB8BC425A}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		dotnet-tools.json = dotnet-tools.json
 		LICENSE.txt = LICENSE.txt
 		examples\GraphQL.Client.Example\Program.cs = examples\GraphQL.Client.Example\Program.cs
 		README.md = README.md
-		root.props = root.props
+		tests\tests.props = tests\tests.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0B0EDB0F-FF67-4B78-A8DB-B5C23E1FEE8C}"
-	ProjectSection(SolutionItems) = preProject
-		tests\tests.props = tests\tests.props
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{6326E0E2-3F48-4BAF-80D3-47AED5EB647C}"
 	ProjectSection(SolutionItems) = preProject
@@ -68,6 +63,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Client.Example", "examples\GraphQL.Client.Example\GraphQL.Client.Example.csproj", "{6B13B87D-1EF4-485F-BC5D-891E2F4DA6CD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{98D4DDDD-DE15-4997-B888-9BC806C7416C}"
+	ProjectSection(SolutionItems) = preProject
+		.github\dependabot.yml = .github\dependabot.yml
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniRxLibrary", "lib\UniRx\UniRxLibrary\UniRxLibrary.csproj", "{ADCE95DC-697F-493C-819D-0DA66AD9B582}"
 EndProject
