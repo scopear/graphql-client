@@ -10,12 +10,12 @@ public interface IGraphQLWebSocketClient : IGraphQLClient
     /// <summary>
     /// Publishes all exceptions which occur inside the websocket receive stream (i.e. for logging purposes)
     /// </summary>
-    IObservable<Exception> WebSocketReceiveErrors { get; }
+    UniRx.IObservable<Exception> WebSocketReceiveErrors { get; }
 
     /// <summary>
     /// Publishes the websocket connection state
     /// </summary>
-    IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState { get; }
+    UniRx.IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState { get; }
 
     /// <summary>
     /// Explicitly opens the websocket connection. Will be closed again on disposing the last subscription.
@@ -27,7 +27,7 @@ public interface IGraphQLWebSocketClient : IGraphQLClient
     /// Ping/Pong is only supported when using the "graphql-transport-ws" websocket sub-protocol.
     /// </summary>
     /// <exception cref="NotSupportedException">the negotiated websocket sub-protocol does not support ping/pong</exception>
-    IObservable<object?> PongStream { get; }
+    UniRx.IObservable<object?> PongStream { get; }
 
     /// <summary>
     /// Sends a ping to the server. <br/>

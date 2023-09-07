@@ -1,14 +1,12 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Text;
 using GraphQL.Client.Abstractions.Websocket;
+using UniRx;
 
 namespace GraphQL.Client.Http.Websocket;
 
-internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
+internal class GraphQLTransportWSProtocolHandler : IWebsocketProtocolHandler
 {
     public string WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
 
@@ -29,7 +27,7 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
         _sendWebsocketMessage = sendWebsocketMessage;
     }
 
-    public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionObservable<TResponse>(GraphQLRequest request)
+    public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionObservable<TResponse>(GraphQLRequest request)
         => Observable.Create<GraphQLResponse<TResponse>>(async observer =>
         {
             Debug.WriteLine($"Create observable thread id: {Thread.CurrentThread.ManagedThreadId}");
@@ -148,7 +146,7 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
             return disposable;
         });
 
-    public IObservable<GraphQLResponse<TResponse>> CreateGraphQLRequestObservable<TResponse>(GraphQLRequest request)
+    public UniRx.IObservable<GraphQLResponse<TResponse>> CreateGraphQLRequestObservable<TResponse>(GraphQLRequest request)
         => Observable.Create<GraphQLResponse<TResponse>>(async observer =>
         {
             var preprocessedRequest = await _client.Options.PreprocessRequest(request, _client).ConfigureAwait(false);
@@ -207,7 +205,7 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
             return disposable;
         });
 
-    public IObservable<object?> CreatePongObservable()
+    public UniRx.IObservable<object?> CreatePongObservable()
         => _webSocketHandler.IncomingMessageStream
             .Where(msg => msg != null && msg.Type == GraphQLWebSocketMessageType.GQL_PONG)
             .Select(msg =>
@@ -228,7 +226,7 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
                 return payload;
             });
 
-    public async Task InitializeConnectionAsync(IObservable<WebsocketMessageWrapper> incomingMessages,
+    public async Task InitializeConnectionAsync(UniRx.IObservable<WebsocketMessageWrapper> incomingMessages,
         CompositeDisposable closeConnectionDisposable)
     {
         var initRequest = new GraphQLWebSocketRequest
@@ -242,7 +240,7 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
             .Where(response => response != null)
             .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK ||
                                    response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ERROR)
-            .LastAsync()
+            .LastOrDefault()
             .ToTask();
 
         // send connection init
@@ -261,7 +259,7 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
 
         closeConnectionDisposable.Add(incomingMessages
             .Where(msg => msg != null && msg.Type == GraphQLWebSocketMessageType.GQL_PING)
-            .SelectMany(msg => Observable.FromAsync(() => RespondWithPongAsync(msg)))
+            .SelectMany(msg => Observable.Create<Unit>((a) => RespondWithPongAsync(msg)))
             .Subscribe());
     }
 

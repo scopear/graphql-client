@@ -41,7 +41,7 @@ public class GraphQLLocalExecutionClient<TSchema> : IGraphQLClient where TSchema
         => ExecuteQueryAsync<TResponse>(request, cancellationToken);
 
     public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request) =>
-        Observable.Defer(() => ExecuteSubscriptionAsync<TResponse>(request).ToObservable())
+        UniRx.Observable.Defer(() => ExecuteSubscriptionAsync<TResponse>(request).ToObservable())
             .Concat()
             .Publish()
             .RefCount();

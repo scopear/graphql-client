@@ -1,10 +1,5 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
-using System.Reactive;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
 using GraphQL.Client.Abstractions.Websocket;
 using UniRx;
 
@@ -96,14 +91,16 @@ internal class GraphQLHttpWebSocket : IDisposable
     /// </summary>
     /// <returns></returns>
     public UniRx.IObservable<object?> GetPongStream() =>
-        Observable.Defer(async () =>
+        Observable.Create<object?>(async observer =>
             {
                 if (_websocketProtocolHandler is null)
                 {
                     await InitializeWebSocket().ConfigureAwait(false);
                 }
 
-                return _websocketProtocolHandler.CreatePongObservable();
+                var observable = _websocketProtocolHandler.CreatePongObservable();
+
+                return observable.Subscribe(observer);
             })
             // complete sequence on OperationCanceledException, this is triggered by the cancellation token
             .Catch<object?, OperationCanceledException>(exception =>
@@ -164,13 +161,15 @@ internal class GraphQLHttpWebSocket : IDisposable
     /// <param name="exceptionHandler">Optional: exception handler for handling exceptions within the receive pipeline</param>
     /// <returns>a <see cref="UniRx.IObservable{TResponse}"/> which represents the subscription</returns>
     public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler = null) =>
-        Observable.Defer(async () =>
+        Observable.Create<GraphQLResponse<TResponse>>(async observer =>
             {
                 if (_websocketProtocolHandler is null)
                 {
                     await InitializeWebSocket().ConfigureAwait(false);
                 }
-                return _websocketProtocolHandler?.CreateSubscriptionObservable<TResponse>(request);
+                var observable = _websocketProtocolHandler?.CreateSubscriptionObservable<TResponse>(request);
+
+                return observable.Subscribe(observer);
             })
             // complete sequence on OperationCanceledException, this is triggered by the cancellation token
             .Catch<GraphQLResponse<TResponse>, OperationCanceledException>(exception =>
