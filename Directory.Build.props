@@ -15,12 +15,7 @@
     <PackageProjectUrl>https://github.com/graphql-dotnet/graphql-client</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>GraphQL</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Deterministic>true</Deterministic>
-    <!-- https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables -->
-    <!-- https://github.com/clairernovotny/DeterministicBuilds -->
-    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <DebugType>embedded</DebugType>
     <ImplicitUsings>enable</ImplicitUsings>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
