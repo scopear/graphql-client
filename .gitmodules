@@ -1,3 +1,6 @@
 [submodule "lib/UniRx"]
 	path = lib/UniRx
 	url = https://github.com/scopear/UniRx.git
+[submodule "lib/UniTask"]
+	path = lib/UniTask
+	url = https://github.com/Cysharp/UniTask.git

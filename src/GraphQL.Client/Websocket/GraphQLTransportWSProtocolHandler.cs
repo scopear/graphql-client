@@ -1,14 +1,14 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Text;
+using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Linq;
 using GraphQL.Client.Abstractions.Websocket;
+using UniRx;
 
 namespace GraphQL.Client.Http.Websocket;
 
-internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
+internal class GraphQLTransportWSProtocolHandler : IWebsocketProtocolHandler
 {
     public string WebsocketProtocol => WebSocketProtocols.GRAPHQL_TRANSPORT_WS;
 
@@ -242,8 +242,9 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
             .Where(response => response != null)
             .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK ||
                                    response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ERROR)
+            .ToUniTaskAsyncEnumerable()
             .LastAsync()
-            .ToTask();
+            .AsTask();
 
         // send connection init
         Debug.WriteLine($"sending connection init message");
@@ -261,7 +262,7 @@ internal class GraphQLTransportWSProtocolHandler: IWebsocketProtocolHandler
 
         closeConnectionDisposable.Add(incomingMessages
             .Where(msg => msg != null && msg.Type == GraphQLWebSocketMessageType.GQL_PING)
-            .SelectMany(msg => Observable.FromAsync(() => RespondWithPongAsync(msg)))
+            .SelectMany(msg => Observable.Create<Unit>((a) => RespondWithPongAsync(msg)))
             .Subscribe());
     }
 

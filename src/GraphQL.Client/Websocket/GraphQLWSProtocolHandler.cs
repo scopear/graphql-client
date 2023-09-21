@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Text;
+using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Linq;
 using GraphQL.Client.Abstractions.Websocket;
+using UniRx;
 
 namespace GraphQL.Client.Http.Websocket;
 
@@ -200,8 +200,9 @@ internal class GraphQLWSProtocolHandler : IWebsocketProtocolHandler
             .Where(response => response != null)
             .TakeUntil(response => response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ACK ||
                                    response.Type == GraphQLWebSocketMessageType.GQL_CONNECTION_ERROR)
+            .ToUniTaskAsyncEnumerable()
             .LastAsync()
-            .ToTask();
+            .AsTask();
 
         // send connection init
         Debug.WriteLine($"sending connection init message");

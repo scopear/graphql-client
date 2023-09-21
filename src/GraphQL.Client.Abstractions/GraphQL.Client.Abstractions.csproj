@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\UniRx\UniRxLibrary\UniRxLibrary.csproj" />
     <ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />
   </ItemGroup>
 

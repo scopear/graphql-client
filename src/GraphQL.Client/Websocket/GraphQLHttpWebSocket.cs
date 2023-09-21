@@ -1,10 +1,7 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
-using System.Reactive;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Linq;
 using GraphQL.Client.Abstractions.Websocket;
 using UniRx;
 
@@ -54,17 +51,17 @@ internal class GraphQLHttpWebSocket : IDisposable
     /// <summary>
     /// Publishes all errors which occur within the receive pipeline
     /// </summary>
-    public UniRx.IObservable<Exception> ReceiveErrors => _exceptionSubject.AsObservable();
+    public IObservable<Exception> ReceiveErrors => _exceptionSubject.AsObservable();
 
     /// <summary>
     /// Publishes the connection state of the <see cref="GraphQLHttpWebSocket"/>
     /// </summary>
-    public UniRx.IObservable<GraphQLWebsocketConnectionState> ConnectionState => _stateSubject.DistinctUntilChanged();
+    public IObservable<GraphQLWebsocketConnectionState> ConnectionState => _stateSubject.DistinctUntilChanged();
 
     /// <summary>
     /// Publishes all messages which are received on the websocket
     /// </summary>
-    public UniRx.IObservable<WebsocketMessageWrapper> IncomingMessageStream { get; }
+    public IObservable<WebsocketMessageWrapper> IncomingMessageStream { get; }
 
     /// <summary>
     /// The websocket protocol used for subscriptions or full-websocket connections
@@ -72,7 +69,7 @@ internal class GraphQLHttpWebSocket : IDisposable
     public string? WebsocketProtocol => _websocketProtocolHandler?.WebsocketProtocol;
 
 
-    public UniRx.IObservable<object?> Pongs => null;
+    public IObservable<object?> Pongs => null;
 
     #endregion
 
@@ -95,15 +92,16 @@ internal class GraphQLHttpWebSocket : IDisposable
     /// Returns the pong message stream. Subscribing initiates the websocket connection if not already established.
     /// </summary>
     /// <returns></returns>
-    public UniRx.IObservable<object?> GetPongStream() =>
-        Observable.Defer(async () =>
+    public IObservable<object?> GetPongStream() =>
+        Observable.Create<object?>(async (o) =>
             {
                 if (_websocketProtocolHandler is null)
                 {
                     await InitializeWebSocket().ConfigureAwait(false);
                 }
 
-                return _websocketProtocolHandler.CreatePongObservable();
+                var observable = _websocketProtocolHandler.CreatePongObservable();
+                return observable.Subscribe(o);
             })
             // complete sequence on OperationCanceledException, this is triggered by the cancellation token
             .Catch<object?, OperationCanceledException>(exception =>
@@ -152,8 +150,9 @@ internal class GraphQLHttpWebSocket : IDisposable
             // complete sequence on OperationCanceledException, this is triggered by the cancellation token
             .Catch<GraphQLResponse<TResponse>, OperationCanceledException>(exception =>
                 Observable.Empty<GraphQLResponse<TResponse>>())
-            .First()
-            .ToTask(cancellationToken);
+            .ToUniTaskAsyncEnumerable()
+            .FirstAsync(cancellationToken)
+            .AsTask();
     }
 
     /// <summary>
@@ -162,23 +161,24 @@ internal class GraphQLHttpWebSocket : IDisposable
     /// <typeparam name="TResponse">the response type</typeparam>
     /// <param name="request">the <see cref="GraphQLRequest"/> to start the subscription</param>
     /// <param name="exceptionHandler">Optional: exception handler for handling exceptions within the receive pipeline</param>
-    /// <returns>a <see cref="UniRx.IObservable{TResponse}"/> which represents the subscription</returns>
-    public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler = null) =>
-        Observable.Defer(async () =>
+    /// <returns>a <see cref="IObservable{TResponse}"/> which represents the subscription</returns>
+    public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler = null) =>
+        Observable.Create<GraphQLResponse<TResponse>>(async (o) =>
             {
                 if (_websocketProtocolHandler is null)
                 {
                     await InitializeWebSocket().ConfigureAwait(false);
                 }
-                return _websocketProtocolHandler?.CreateSubscriptionObservable<TResponse>(request);
+                var observable = _websocketProtocolHandler?.CreateSubscriptionObservable<TResponse>(request);
+                return observable.Subscribe(o);
             })
             // complete sequence on OperationCanceledException, this is triggered by the cancellation token
             .Catch<GraphQLResponse<TResponse>, OperationCanceledException>(exception =>
                 Observable.Empty<GraphQLResponse<TResponse>>())
             // wrap results
-            .Select(response => new UniRx.Tuple<GraphQLResponse<TResponse>, Exception>(response, null))
+            .Select(response => new Tuple<GraphQLResponse<TResponse>, Exception>(response, null))
             // do exception handling
-            .Catch<UniRx.Tuple<GraphQLResponse<TResponse>, Exception>, Exception>(e =>
+            .Catch<Tuple<GraphQLResponse<TResponse>, Exception>, Exception>(e =>
             {
                 try
                 {
@@ -197,17 +197,17 @@ internal class GraphQLHttpWebSocket : IDisposable
 
                     // throw exception on the observable to be caught by Retry() or complete sequence if cancellation was requested
                     if (_internalCancellationToken.IsCancellationRequested)
-                        return Observable.Empty<UniRx.Tuple<GraphQLResponse<TResponse>, Exception>>();
+                        return Observable.Empty<Tuple<GraphQLResponse<TResponse>, Exception>>();
                     else
                     {
                         Debug.WriteLine($"Catch handler thread id: {Thread.CurrentThread.ManagedThreadId}");
-                        return Observable.Throw<UniRx.Tuple<GraphQLResponse<TResponse>, Exception>>(e);
+                        return Observable.Throw<Tuple<GraphQLResponse<TResponse>, Exception>>(e);
                     }
                 }
                 catch (Exception exception)
                 {
                     // wrap all other exceptions to be propagated behind retry
-                    return Observable.Return(new UniRx.Tuple<GraphQLResponse<TResponse>, Exception>(null, exception));
+                    return Observable.Return(new Tuple<GraphQLResponse<TResponse>, Exception>(null, exception));
                 }
             })
             // attempt to recreate the websocket for rethrown exceptions
@@ -449,7 +449,7 @@ internal class GraphQLHttpWebSocket : IDisposable
         return Task.Delay(delay, _internalCancellationToken);
     }
 
-    protected UniRx.IObservable<WebsocketMessageWrapper> GetMessageStream() =>
+    protected IObservable<WebsocketMessageWrapper> GetMessageStream() =>
         Observable.Create<WebsocketMessageWrapper>(async observer =>
             {
                 // make sure the websocket is connected

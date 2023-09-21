@@ -1,5 +1,5 @@
-using System.Reactive.Disposables;
 using GraphQL.Client.Abstractions.Websocket;
+using UniRx;
 
 namespace GraphQL.Client.Http.Websocket;
 

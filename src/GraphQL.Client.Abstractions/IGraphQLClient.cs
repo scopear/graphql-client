@@ -1,5 +1,4 @@
 using System.Net.WebSockets;
-using UniRx;
 
 namespace GraphQL.Client.Abstractions;
 
@@ -16,7 +15,7 @@ public interface IGraphQLClient
     /// </summary>
     /// <param name="request">the GraphQL request for this subscription</param>
     /// <returns>an observable stream for the specified subscription</returns>
-    UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request);
+    IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request);
 
     /// <summary>
     /// Creates a subscription to a GraphQL server. The connection is not established until the first actual subscription is made.<br/>
@@ -28,5 +27,5 @@ public interface IGraphQLClient
     /// <param name="request">the GraphQL request for this subscription</param>
     /// <param name="exceptionHandler">an external handler for all <see cref="Exception"/>s occurring within the sequence</param>
     /// <returns>an observable stream for the specified subscription</returns>
-    UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler);
+    IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception> exceptionHandler);
 }

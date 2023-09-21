@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Net.Http.Headers;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Abstractions.Websocket;
 using GraphQL.Client.Http.Websocket;
@@ -31,16 +30,16 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
     public GraphQLHttpClientOptions Options { get; }
 
     /// <inheritdoc />
-    public UniRx.IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
+    public IObservable<Exception> WebSocketReceiveErrors => GraphQlHttpWebSocket.ReceiveErrors;
 
     /// <inheritdoc />
     public string? WebSocketSubProtocol => GraphQlHttpWebSocket.WebsocketProtocol;
 
     /// <inheritdoc />
-    public UniRx.IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => GraphQlHttpWebSocket.ConnectionState;
+    public IObservable<GraphQLWebsocketConnectionState> WebsocketConnectionState => GraphQlHttpWebSocket.ConnectionState;
 
     /// <inheritdoc />
-    public UniRx.IObservable<object?> PongStream => GraphQlHttpWebSocket.GetPongStream();
+    public IObservable<object?> PongStream => GraphQlHttpWebSocket.GetPongStream();
 
     #region Constructors
 
@@ -60,13 +59,13 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         _disposeHttpClient = true;
     }
 
-        public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
-        {
-            Options = options ?? throw new ArgumentNullException(nameof(options));
-            JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
-            HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
-        }
+    public GraphQLHttpClient(GraphQLHttpClientOptions options, IGraphQLWebsocketJsonSerializer serializer, HttpClient httpClient)
+    {
+        Options = options ?? throw new ArgumentNullException(nameof(options));
+        JsonSerializer = serializer ?? throw new ArgumentNullException(nameof(serializer), "please configure the JSON serializer you want to use");
+        HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _lazyHttpWebSocket = new Lazy<GraphQLHttpWebSocket>(CreateGraphQLHttpWebSocket);
+    }
 
     #endregion
 
@@ -86,11 +85,11 @@ public class GraphQLHttpClient : IGraphQLWebSocketClient, IDisposable
         => SendQueryAsync<TResponse>(request, cancellationToken);
 
     /// <inheritdoc />
-    public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
+    public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request)
         => CreateSubscriptionStream<TResponse>(request, null);
 
     /// <inheritdoc />
-    public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler)
+    public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request, Action<Exception>? exceptionHandler)
     {
         if (_disposed)
             throw new ObjectDisposedException(nameof(GraphQLHttpClient));

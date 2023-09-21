@@ -67,7 +67,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{98D4
 		.github\dependabot.yml = .github\dependabot.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniRxLibrary", "lib\UniRx\UniRxLibrary\UniRxLibrary.csproj", "{ADCE95DC-697F-493C-819D-0DA66AD9B582}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniRxLibrary", "lib\UniRx\UniRxLibrary\UniRxLibrary.csproj", "{ADCE95DC-697F-493C-819D-0DA66AD9B582}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniTask.NetCore", "lib\UniTask\src\UniTask.NetCore\UniTask.NetCore.csproj", "{CD9B7451-3A29-496D-976B-EDB711DFD1FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,6 +137,10 @@ Global
 		{ADCE95DC-697F-493C-819D-0DA66AD9B582}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADCE95DC-697F-493C-819D-0DA66AD9B582}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADCE95DC-697F-493C-819D-0DA66AD9B582}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD9B7451-3A29-496D-976B-EDB711DFD1FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD9B7451-3A29-496D-976B-EDB711DFD1FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD9B7451-3A29-496D-976B-EDB711DFD1FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD9B7451-3A29-496D-976B-EDB711DFD1FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

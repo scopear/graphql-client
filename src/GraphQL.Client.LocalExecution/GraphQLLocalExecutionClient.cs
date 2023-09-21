@@ -40,13 +40,13 @@ public class GraphQLLocalExecutionClient<TSchema> : IGraphQLClient where TSchema
     public Task<GraphQLResponse<TResponse>> SendMutationAsync<TResponse>(GraphQLRequest request, CancellationToken cancellationToken = default)
         => ExecuteQueryAsync<TResponse>(request, cancellationToken);
 
-    public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request) =>
+    public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request) =>
         Observable.Defer(() => ExecuteSubscriptionAsync<TResponse>(request).ToObservable())
             .Concat()
             .Publish()
             .RefCount();
 
-    public UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request,
+    public IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(GraphQLRequest request,
         Action<Exception> exceptionHandler)
         => CreateSubscriptionStream<TResponse>(request);
 

@@ -1,4 +1,3 @@
-using UniRx;
 namespace GraphQL.Client.Abstractions;
 
 public static class GraphQLClientExtensions
@@ -35,14 +34,14 @@ public static class GraphQLClientExtensions
         return client.SendMutationAsync<TResponse>(request, cancellationToken);
     }
 
-    public static UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
+    public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
         this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType)
     {
         _ = defineResponseType;
         return client.CreateSubscriptionStream<TResponse>(request);
     }
 
-    public static UniRx.IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
+    public static IObservable<GraphQLResponse<TResponse>> CreateSubscriptionStream<TResponse>(
         this IGraphQLClient client, GraphQLRequest request, Func<TResponse> defineResponseType, Action<Exception> exceptionHandler)
     {
         _ = defineResponseType;
