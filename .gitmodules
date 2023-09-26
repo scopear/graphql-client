@@ -3,4 +3,4 @@
 	url = https://github.com/scopear/UniRx.git
 [submodule "lib/UniTask"]
 	path = lib/UniTask
-	url = https://github.com/Cysharp/UniTask.git
+	url = https://github.com/scopear/UniTask.git
