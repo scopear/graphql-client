@@ -1,12 +1,11 @@
 using GraphQL.Integration.Tests.Helpers;
 using Xunit;
 
-namespace GraphQL.Integration.Tests.QueryAndMutationTests
+namespace GraphQL.Integration.Tests.QueryAndMutationTests;
+
+public class Newtonsoft : Base, IClassFixture<NewtonsoftGraphQLWsServerTestFixture>
 {
-    public class Newtonsoft : Base, IClassFixture<NewtonsoftIntegrationServerTestFixture>
+    public Newtonsoft(NewtonsoftGraphQLWsServerTestFixture fixture) : base(fixture)
     {
-        public Newtonsoft(NewtonsoftIntegrationServerTestFixture fixture) : base(fixture)
-        {
-        }
     }
 }

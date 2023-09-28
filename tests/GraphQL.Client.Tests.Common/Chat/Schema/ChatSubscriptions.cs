@@ -1,98 +1,90 @@
-using System;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Security.Claims;
 using GraphQL.Resolvers;
-using GraphQL.Server.Transports.Subscriptions.Abstractions;
-using GraphQL.Subscription;
 using GraphQL.Types;
 
-namespace GraphQL.Client.Tests.Common.Chat.Schema
+namespace GraphQL.Client.Tests.Common.Chat.Schema;
+
+public class ChatSubscriptions : ObjectGraphType<object>
 {
-    public class ChatSubscriptions : ObjectGraphType<object>
+    private readonly IChat _chat;
+
+    public ChatSubscriptions(IChat chat)
     {
-        private readonly IChat _chat;
-
-        public ChatSubscriptions(IChat chat)
+        _chat = chat;
+        AddField(new FieldType
         {
-            _chat = chat;
-            AddField(new EventStreamFieldType
-            {
-                Name = "messageAdded",
-                Type = typeof(MessageType),
-                Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(Subscribe)
-            });
+            Name = "messageAdded",
+            Type = typeof(MessageType),
+            Resolver = new FuncFieldResolver<Message>(ResolveMessage),
+            StreamResolver = new SourceStreamResolver<Message>(Subscribe)
+        });
 
-            AddField(new EventStreamFieldType
-            {
-                Name = "contentAdded",
-                Type = typeof(MessageType),
-                Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(Subscribe)
-            });
-
-            AddField(new EventStreamFieldType
-            {
-                Name = "messageAddedByUser",
-                Arguments = new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "id" }
-                ),
-                Type = typeof(MessageType),
-                Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(SubscribeById)
-            });
-
-            AddField(new EventStreamFieldType
-            {
-                Name = "userJoined",
-                Type = typeof(MessageFromType),
-                Resolver = new FuncFieldResolver<MessageFrom>(context => context.Source as MessageFrom),
-                Subscriber = new EventStreamResolver<MessageFrom>(context => _chat.UserJoined())
-            });
-
-
-            AddField(new EventStreamFieldType
-            {
-                Name = "failImmediately",
-                Type = typeof(MessageType),
-                Resolver = new FuncFieldResolver<Message>(ResolveMessage),
-                Subscriber = new EventStreamResolver<Message>(context => throw new NotSupportedException("this is supposed to fail"))
-            });
-        }
-
-        private IObservable<Message> SubscribeById(IResolveEventStreamContext context)
+        AddField(new FieldType
         {
-            var messageContext = (MessageHandlingContext) context.UserContext;
-            var user = messageContext.Get<ClaimsPrincipal>("user");
+            Name = "contentAdded",
+            Type = typeof(MessageType),
+            Resolver = new FuncFieldResolver<Message>(ResolveMessage),
+            StreamResolver = new SourceStreamResolver<Message>(Subscribe)
+        });
 
-            var sub = "Anonymous";
-            if (user != null)
-                sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
-
-            var messages = _chat.Messages(sub);
-
-            var id = context.GetArgument<string>("id");
-            return messages.Where(message => message.From.Id == id);
-        }
-
-        private Message ResolveMessage(IResolveFieldContext context)
+        AddField(new FieldType
         {
-            var message = context.Source as Message;
+            Name = "messageAddedByUser",
+            Arguments = new QueryArguments(
+                new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "id" }
+            ),
+            Type = typeof(MessageType),
+            Resolver = new FuncFieldResolver<Message>(ResolveMessage),
+            StreamResolver = new SourceStreamResolver<Message>(SubscribeById)
+        });
 
-            return message;
-        }
-
-        private IObservable<Message> Subscribe(IResolveEventStreamContext context)
+        AddField(new FieldType
         {
-            var messageContext = (MessageHandlingContext) context.UserContext;
-            var user = messageContext.Get<ClaimsPrincipal>("user");
+            Name = "userJoined",
+            Type = typeof(MessageFromType),
+            Resolver = new FuncFieldResolver<MessageFrom>(context => context.Source as MessageFrom),
+            StreamResolver = new SourceStreamResolver<MessageFrom>(context => _chat.UserJoined())
+        });
 
-            var sub = "Anonymous";
-            if (user != null)
-                sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
-            return _chat.Messages(sub);
-        }
+        AddField(new FieldType
+        {
+            Name = "failImmediately",
+            Type = typeof(MessageType),
+            Resolver = new FuncFieldResolver<Message>(ResolveMessage),
+            StreamResolver = new SourceStreamResolver<Message>((Func<IResolveFieldContext, IObservable<Message>>)(context => throw new NotSupportedException("this is supposed to fail")))
+        });
+    }
+
+    private IObservable<Message> SubscribeById(IResolveFieldContext context)
+    {
+        var user = context.User;
+
+        var sub = "Anonymous";
+        if (user != null)
+            sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+        var messages = _chat.Messages(sub);
+
+        var id = context.GetArgument<string>("id");
+        return messages.Where(message => message.From.Id == id);
+    }
+
+    private Message ResolveMessage(IResolveFieldContext context)
+    {
+        var message = context.Source as Message;
+
+        return message;
+    }
+
+    private IObservable<Message> Subscribe(IResolveFieldContext context)
+    {
+        var user = context.User;
+
+        var sub = "Anonymous";
+        if (user != null)
+            sub = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+        return _chat.Messages(sub);
     }
 }

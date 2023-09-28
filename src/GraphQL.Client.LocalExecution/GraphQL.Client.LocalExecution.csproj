@@ -1,6 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="../src.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>A GraphQL Client which executes the queries directly on a provided GraphQL schema using graphql-dotnet</Description>
@@ -8,10 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.MicrosoftDI" Version="4.6.1" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="4.6.0" />
-    <PackageReference Include="GraphQL.SystemReactive" Version="4.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="GraphQL.MicrosoftDI" Version="7.0.0" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

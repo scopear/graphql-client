@@ -1,19 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="../src.props" />
-
   <PropertyGroup>
     <Description>Abstractions for GraphQL.Client</Description>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\UniRx\UniRxLibrary\UniRxLibrary.csproj" />
     <ProjectReference Include="..\GraphQL.Primitives\GraphQL.Primitives.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Utilities" />
   </ItemGroup>
 
 </Project>

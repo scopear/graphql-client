@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="../src.props" />
-
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <RootNamespace>GraphQL.Client.Http</RootNamespace>
@@ -12,14 +10,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
   </ItemGroup>
-  
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461'">
     <PackageReference Include="System.Net.WebSockets.Client.Managed" Version="1.0.22" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\lib\UniTask\src\UniTask.NetCore\UniTask.NetCore.csproj" />
     <ProjectReference Include="..\GraphQL.Client.Abstractions.Websocket\GraphQL.Client.Abstractions.Websocket.csproj" />
     <ProjectReference Include="..\GraphQL.Client.Abstractions\GraphQL.Client.Abstractions.csproj" />
     <ProjectReference Include="..\..\lib\UniRx\UniRxLibrary\UniRxLibrary.csproj" />
